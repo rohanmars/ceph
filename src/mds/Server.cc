@@ -7716,6 +7716,9 @@ void Server::handle_client_lssnap(MDRequestRef& mdr)
   if (!mds->locker->acquire_locks(mdr, rdlocks, wrlocks, xlocks))
     return;
 
+  if (!check_access(mdr, diri, MAY_READ))
+    return;
+
   SnapRealm *realm = diri->find_snaprealm();
   map<snapid_t,SnapInfo*> infomap;
   realm->get_snap_info(infomap, diri->get_oldest_snap());
@@ -7843,6 +7846,9 @@ void Server::handle_client_mksnap(MDRequestRef& mdr)
   xlocks.insert(&diri->snaplock);
 
   if (!mds->locker->acquire_locks(mdr, rdlocks, wrlocks, xlocks))
+    return;
+
+  if (!check_access(mdr, diri, MAY_WRITE))
     return;
 
   // make sure name is unique
@@ -7992,6 +7998,9 @@ void Server::handle_client_rmsnap(MDRequestRef& mdr)
   if (!mds->locker->acquire_locks(mdr, rdlocks, wrlocks, xlocks))
     return;
 
+  if (!check_access(mdr, diri, MAY_WRITE))
+    return;
+
   // prepare
   if (!mdr->more()->stid) {
     mds->snapclient->prepare_destroy(diri->ino(), snapid,
@@ -8130,6 +8139,9 @@ void Server::handle_client_renamesnap(MDRequestRef& mdr)
   xlocks.insert(&diri->snaplock);
 
   if (!mds->locker->acquire_locks(mdr, rdlocks, wrlocks, xlocks))
+    return;
+
+  if (!check_access(mdr, diri, MAY_WRITE))
     return;
 
     // prepare

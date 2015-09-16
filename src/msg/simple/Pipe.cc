@@ -2245,7 +2245,7 @@ int Pipe::do_sendmsg(struct msghdr *msg, int len, bool more)
       }
     }
   }
-#if !defined(MSG_NOSIGNAL) && !defined(SO_SIGPIPE)
+#if !defined(MSG_NOSIGNAL) && !defined(SO_NOSIGPIPE)
   restore_sigpipe();
 #endif
   return 0;
@@ -2611,7 +2611,7 @@ int Pipe::tcp_write(const char *buf, int len)
 
   //lgeneric_dout(cct, DBL) << "tcp_write writing " << len << dendl;
   assert(len > 0);
-#if !defined(MSG_NOSIGNAL) && !defined(SO_SIGPIPE)
+#if !defined(MSG_NOSIGNAL) && !defined(SO_NOSIGPIPE)
   suppress_sigpipe();
 #endif
 
@@ -2631,7 +2631,7 @@ int Pipe::tcp_write(const char *buf, int len)
     buf += did;
     //lgeneric_dout(cct, DBL) << "tcp_write did " << did << ", " << len << " left" << dendl;
   }
-#if !defined(MSG_NOSIGNAL) && !defined(SO_SIGPIPE)
+#if !defined(MSG_NOSIGNAL) && !defined(SO_NOSIGPIPE)
   restore_sigpipe();
 #endif
 

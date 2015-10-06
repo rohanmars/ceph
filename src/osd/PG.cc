@@ -4228,7 +4228,7 @@ void PG::scrub_compare_maps()
   _scrub(authmap, missing_digest);
 }
 
-void PG::scrub_process_inconsistent()
+bool PG::scrub_process_inconsistent()
 {
   dout(10) << __func__ << ": checking authoritative" << dendl;
   bool repair = state_test(PG_STATE_REPAIR);
@@ -4275,6 +4275,7 @@ void PG::scrub_process_inconsistent()
       }
     }
   }
+  return (!scrubber.authoritative.empty() && repair);
 }
 
 // the part that actually finalizes a scrub
@@ -4287,7 +4288,7 @@ void PG::scrub_finish()
   // type-specific finish (can tally more errors)
   _scrub_finish();
 
-  scrub_process_inconsistent();
+  bool has_error = scrub_process_inconsistent();
 
   {
     stringstream oss;
@@ -4355,7 +4356,7 @@ void PG::scrub_finish()
   }
 
 
-  if (repair) {
+  if (has_error) {
     queue_peering_event(
       CephPeeringEvtRef(
 	new CephPeeringEvt(

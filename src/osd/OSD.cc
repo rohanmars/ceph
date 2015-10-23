@@ -480,11 +480,15 @@ void OSDService::init()
   reserver_finisher.start();
   objecter_finisher.start();
   objecter->set_client_incarnation(0);
-  objecter->start();
   watch_timer.init();
   agent_timer.init();
 
   agent_thread.create();
+}
+
+void OSDService::final_init()
+{
+  objecter->start();
 }
 
 void OSDService::activate_map()
@@ -1931,6 +1935,10 @@ int OSD::init()
     tick_timer_without_osd_lock.add_event_after(cct->_conf->osd_heartbeat_interval, new C_Tick_WithoutOSDLock(this));
   }
 
+  service.init();
+  service.publish_map(osdmap);
+  service.publish_superblock(superblock);
+
   osd_lock.Unlock();
 
   r = monc->authenticate();
@@ -1949,9 +1957,9 @@ int OSD::init()
   if (is_stopping())
     return 0;
 
-  service.init();
-  service.publish_map(osdmap);
-  service.publish_superblock(superblock);
+  // start objecter *after* we have authenticated, so that we don't ignore
+  // the OSDMaps it requests.
+  service.final_init();
 
   check_config();
 

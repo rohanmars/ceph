@@ -7902,7 +7902,7 @@ int RGWRados::list_raw_objects(rgw_bucket& pool, const string& prefix_filter,
   if (!ctx.initialized) {
     int r = pool_iterate_begin(pool, ctx.iter_ctx);
     if (r < 0) {
-      lderr(cct) << "failed to list objects pool_iterate_begin() returned r=" << r << dendl;
+      ldout(cct, 10) << "failed to list objects pool_iterate_begin() returned r=" << r << dendl;
       return r;
     }
     ctx.initialized = true;
@@ -7911,7 +7911,7 @@ int RGWRados::list_raw_objects(rgw_bucket& pool, const string& prefix_filter,
   vector<RGWObjEnt> objs;
   int r = pool_iterate(ctx.iter_ctx, max, objs, is_truncated, &filter);
   if (r < 0) {
-    lderr(cct) << "failed to list objects pool_iterate returned r=" << r << dendl;
+    ldout(cct, 10) << "failed to list objects pool_iterate returned r=" << r << dendl;
     return r;
   }
 

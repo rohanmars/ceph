@@ -521,9 +521,9 @@ WRITE_CMP_OPERATORS_1(shard_id_t, id)
 ostream &operator<<(ostream &lhs, const shard_id_t &rhs);
 
 #if defined(__sun)
-__s32 translate_errno(__s32 e);
+__s32  ceph_to_host_errno(__s32 e);
 #else
-#define translate_errno(e) (e)
+#define  ceph_to_host_errno(e) (e)
 #endif
 
 struct errorcode32_t {
@@ -542,7 +542,7 @@ struct errorcode32_t {
   }
   void decode(bufferlist::iterator &bl) {
     ::decode(code, bl);
-    code = translate_errno(code);
+    code = ceph_to_host_errno(code);
   }
 };
 WRITE_CLASS_ENCODER(errorcode32_t)
